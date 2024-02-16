@@ -12,7 +12,7 @@ httpServer.listen(HTTP_PORT);
 
 const wss = new WebSocket.Server({ server: httpServer });
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws: PlayerWebSocket) => {
   ws.on('message', (message) => {
     const { type, data } = parseRequest(message);
 
@@ -25,7 +25,11 @@ wss.on('connection', (ws) => {
         } else {
           response = registration(data);
         }
-
+        // eslint-disable-next-line no-param-reassign
+        ws.player = {
+          index: response.data.index,
+          name: response.data.name,
+        };
         ws.send(stringifyResponse(response));
         break;
       }

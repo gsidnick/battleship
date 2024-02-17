@@ -73,3 +73,12 @@ export const updateRoom = (): Response<Rooms> => {
     id: 0,
   };
 };
+
+export const updateWinners = () => {
+  const { winners } = db;
+  return {
+    type: 'update_winners',
+    data: winners,
+    id: 0,
+  };
+};

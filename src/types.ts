@@ -26,6 +26,11 @@ export interface Room {
   roomUsers: RoomPlayer[];
 }
 
+export interface Winner {
+  name: string;
+  wins: number;
+}
+
 export interface Response<T> {
   type: string;
   data: T;
@@ -40,5 +45,6 @@ export interface Request<T> {
 
 export type Players = Player[];
 export type Rooms = Room[];
-export type ResponseData = PlayerResponse | Rooms;
+export type Winners = Winner[];
+export type ResponseData = PlayerResponse | Rooms | Winners;
 export type RequestData = PlayerCredentials;

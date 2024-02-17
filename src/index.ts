@@ -2,9 +2,9 @@ import WebSocket from 'ws';
 import PlayerWebSocket from './websocket';
 import { httpServer } from './http_server/index.js';
 import { parseRequest, stringifyResponse } from './utils';
-import { registration, login, createRoom, updateRoom } from './controller';
+import { registration, login, createRoom, updateRoom, updateWinners } from './controller';
 import { isPlayerExist } from './db';
-import { Response, PlayerResponse } from './types.js';
+import { Response, PlayerResponse, Rooms, Winners } from './types.js';
 
 const HTTP_PORT = 3000;
 
@@ -19,26 +19,34 @@ wss.on('connection', (ws: PlayerWebSocket) => {
 
     switch (type) {
       case 'reg': {
-        let response: Response<PlayerResponse>;
+        let auth: Response<PlayerResponse>;
 
         if (isPlayerExist(data.name)) {
-          response = login(data);
+          auth = login(data);
         } else {
-          response = registration(data);
+          auth = registration(data);
         }
         // eslint-disable-next-line no-param-reassign
         ws.player = {
-          index: response.data.index,
-          name: response.data.name,
+          index: auth.data.index,
+          name: auth.data.name,
         };
-        ws.send(stringifyResponse(response));
+        ws.send(stringifyResponse(auth));
+
+        const rooms: Response<Rooms> = updateRoom();
+        const winners: Response<Winners> = updateWinners();
+
+        wss.clients.forEach((client) => {
+          client.send(stringifyResponse(rooms));
+          client.send(stringifyResponse(winners));
+        });
         break;
       }
 
       case 'create_room': {
         createRoom(ws.player);
-        const response = updateRoom();
-        wss.clients.forEach((client) => client.send(stringifyResponse(response)));
+        const rooms = updateRoom();
+        wss.clients.forEach((client) => client.send(stringifyResponse(rooms)));
         break;
       }
 

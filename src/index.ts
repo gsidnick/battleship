@@ -3,7 +3,7 @@ import PlayerWebSocket from './websocket';
 import { httpServer } from './http_server/index.js';
 import { parseRequest, stringifyResponse } from './utils';
 import { registration, login, createRoom, updateRoom } from './controller';
-import db, { isPlayerExist } from './db';
+import { isPlayerExist } from './db';
 import { Response, PlayerResponse } from './types.js';
 
 const HTTP_PORT = 3000;
@@ -37,7 +37,6 @@ wss.on('connection', (ws: PlayerWebSocket) => {
 
       case 'create_room': {
         createRoom(ws.player);
-        console.log(db);
         const response = updateRoom();
         wss.clients.forEach((client) => client.send(stringifyResponse(response)));
         break;

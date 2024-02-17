@@ -23,7 +23,7 @@ export interface Player {
 
 export interface Room {
   roomId: number;
-  roomPlayers: RoomPlayer[];
+  roomUsers: RoomPlayer[];
 }
 
 export interface Response<T> {

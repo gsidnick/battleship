@@ -58,9 +58,9 @@ export const createRoom = (player: RoomPlayer): void => {
   const index = db.roomIndex + 1;
   const room: Room = {
     roomId: index,
-    roomPlayers: [],
+    roomUsers: [],
   };
-  room.roomPlayers.push(player);
+  room.roomUsers.push(player);
   db.roomIndex = index;
   db.rooms.push(room);
 };

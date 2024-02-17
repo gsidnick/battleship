@@ -1,8 +1,9 @@
 import WebSocket from 'ws';
+import PlayerWebSocket from './websocket';
 import { httpServer } from './http_server/index.js';
 import { parseRequest, stringifyResponse } from './utils';
-import { registration, login } from './controller';
-import { isPlayerExist } from './db';
+import { registration, login, createRoom } from './controller';
+import db, { isPlayerExist } from './db';
 import { Response, PlayerResponse } from './types.js';
 
 const HTTP_PORT = 3000;
@@ -31,6 +32,12 @@ wss.on('connection', (ws: PlayerWebSocket) => {
           name: response.data.name,
         };
         ws.send(stringifyResponse(response));
+        break;
+      }
+
+      case 'create_room': {
+        createRoom(ws.player);
+        console.log(db);
         break;
       }
 

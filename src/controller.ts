@@ -1,5 +1,5 @@
 import db from './db';
-import { PlayerCredentials, Response, PlayerResponse, Player, Room, RoomPlayer } from './types';
+import { PlayerCredentials, Response, PlayerResponse, Player, Room, RoomPlayer, Rooms } from './types';
 import { generateId, hashPassword, verifyPassword } from './utils';
 
 export const registration = (data: PlayerCredentials): Response<PlayerResponse> => {
@@ -63,4 +63,13 @@ export const createRoom = (player: RoomPlayer): void => {
   room.roomUsers.push(player);
   db.roomIndex = index;
   db.rooms.push(room);
+};
+
+export const updateRoom = (): Response<Rooms> => {
+  const { rooms } = db;
+  return {
+    type: 'update_room',
+    data: rooms,
+    id: 0,
+  };
 };

@@ -1,8 +1,9 @@
-import { Players, Rooms, Winners } from './types';
+import { Players, Rooms, Winners, Clients } from './types';
 
 interface Database {
   roomIndex: number;
   gameIndex: number;
+  clients: Clients;
   players: Players;
   rooms: Rooms;
   winners: Winners;
@@ -11,6 +12,7 @@ interface Database {
 const db: Database = {
   roomIndex: 0,
   gameIndex: 0,
+  clients: [],
   players: [],
   rooms: [],
   winners: [],

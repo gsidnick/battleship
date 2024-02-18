@@ -1,3 +1,6 @@
+// eslint-disable-next-line import/no-cycle
+import PlayerWebSocket from './websocket';
+
 export interface PlayerCredentials {
   name: string;
   password: string;
@@ -64,6 +67,7 @@ export type AddUserToRoomType = {
 export type Players = Player[];
 export type Rooms = Room[];
 export type Winners = Winner[];
+export type Clients = PlayerWebSocket[];
 export type ResponseData = PlayerResponse | Rooms | Winners | Game;
 export type RequestData = PlayerCredentialsType | CreateRoomType | AddUserToRoomType;
 

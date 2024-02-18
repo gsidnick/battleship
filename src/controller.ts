@@ -1,6 +1,17 @@
 import db from './db';
-import { PlayerCredentials, Response, PlayerResponse, Player, Room, RoomPlayer, Rooms, Game } from './types';
-import { generateId, hashPassword, verifyPassword } from './utils';
+import {
+  PlayerCredentials,
+  Response,
+  PlayerResponse,
+  Player,
+  Room,
+  RoomPlayer,
+  Rooms,
+  Game,
+  ResponseData,
+} from './types';
+import { generateId, hashPassword, stringifyResponse, verifyPassword } from './utils';
+import PlayerWebSocket from './websocket';
 
 export const registration = (data: PlayerCredentials): Response<PlayerResponse> => {
   const { name, password } = data;
@@ -101,4 +112,15 @@ export const createGame = (playerId: number): Response<Game> => {
     data: game,
     id: 0,
   };
+};
+
+export const addClient = (client: PlayerWebSocket): void => {
+  db.clients.push(client);
+};
+
+export const sendToAllClients = (response: Response<ResponseData>): void => {
+  const message: string = stringifyResponse(response);
+  db.clients.forEach((client) => {
+    client.send(message);
+  });
 };

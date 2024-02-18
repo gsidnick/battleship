@@ -12,6 +12,9 @@ import {
   removeRoom,
   addClient,
   sendToAllClients,
+  addUserToRoom,
+  getRoomPlayers,
+  sendToSpecifyClients,
 } from './controller';
 import { isPlayerExist } from './db';
 import { Response, PlayerResponse, Rooms, Winners } from './types.js';
@@ -61,12 +64,17 @@ wss.on('connection', (ws: PlayerWebSocket) => {
       }
 
       case 'add_user_to_room': {
-        removeRoom(data.indexRoom);
-        const rooms = updateRoom();
-        const game = createGame(ws.player.index);
+        addUserToRoom(ws.player, data.indexRoom);
 
+        const players = getRoomPlayers(data.indexRoom);
+
+        removeRoom(data.indexRoom);
+
+        const game = createGame(ws.player.index);
+        const rooms = updateRoom();
+
+        sendToSpecifyClients(game, players);
         sendToAllClients(rooms);
-        sendToAllClients(game);
         break;
       }
 

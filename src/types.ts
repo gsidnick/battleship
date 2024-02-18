@@ -66,6 +66,7 @@ export type AddUserToRoomType = {
 
 export type Players = Player[];
 export type Rooms = Room[];
+export type RoomPlayers = RoomPlayer[];
 export type Winners = Winner[];
 export type Clients = PlayerWebSocket[];
 export type ResponseData = PlayerResponse | Rooms | Winners | Game;

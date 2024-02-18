@@ -9,6 +9,7 @@ import {
   Rooms,
   Game,
   ResponseData,
+  RoomPlayers,
 } from './types';
 import { generateId, hashPassword, stringifyResponse, verifyPassword } from './utils';
 import PlayerWebSocket from './websocket';
@@ -114,6 +115,26 @@ export const createGame = (playerId: number): Response<Game> => {
   };
 };
 
+export const addUserToRoom = (player: RoomPlayer, roomId: number): void => {
+  db.rooms.forEach((room, index) => {
+    if (room.roomId === roomId) {
+      db.rooms[index].roomUsers.push(player);
+    }
+  });
+};
+
+export const getRoomPlayers = (roomId: number): RoomPlayers => {
+  let index = 0;
+
+  db.rooms.forEach((item, i) => {
+    if (item.roomId === roomId) {
+      index = i;
+    }
+  });
+
+  return db.rooms[index].roomUsers;
+};
+
 export const addClient = (client: PlayerWebSocket): void => {
   db.clients.push(client);
 };
@@ -122,5 +143,13 @@ export const sendToAllClients = (response: Response<ResponseData>): void => {
   const message: string = stringifyResponse(response);
   db.clients.forEach((client) => {
     client.send(message);
+  });
+};
+
+export const sendToSpecifyClients = (response: Response<ResponseData>, players: RoomPlayers): void => {
+  const message: string = stringifyResponse(response);
+  players.forEach((player) => {
+    const client = db.clients.find((item) => item.player.index === player.index);
+    client?.send(message);
   });
 };

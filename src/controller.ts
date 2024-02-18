@@ -10,6 +10,7 @@ import {
   Game,
   ResponseData,
   RoomPlayers,
+  Winners,
 } from './types';
 import { generateId, hashPassword, stringifyResponse, verifyPassword } from './utils';
 import PlayerWebSocket from './websocket';
@@ -86,7 +87,7 @@ export const updateRoom = (): Response<Rooms> => {
   };
 };
 
-export const updateWinners = () => {
+export const updateWinners = (): Response<Winners> => {
   const { winners } = db;
   return {
     type: 'update_winners',
@@ -95,7 +96,7 @@ export const updateWinners = () => {
   };
 };
 
-export const removeRoom = (roomId: number) => {
+export const removeRoom = (roomId: number): void => {
   db.rooms = db.rooms.filter((room) => room.roomId !== roomId);
 };
 

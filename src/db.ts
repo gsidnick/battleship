@@ -18,7 +18,7 @@ const db: Database = {
   winners: [],
 };
 
-export const isPlayerExist = (name: string) => {
+export const isPlayerExist = (name: string): boolean => {
   return db.players.some((player) => player.name === name);
 };
 

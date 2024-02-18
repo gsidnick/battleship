@@ -1,5 +1,5 @@
 import db from './db';
-import { PlayerCredentials, Response, PlayerResponse, Player, Room, RoomPlayer, Rooms } from './types';
+import { PlayerCredentials, Response, PlayerResponse, Player, Room, RoomPlayer, Rooms, Game } from './types';
 import { generateId, hashPassword, verifyPassword } from './utils';
 
 export const registration = (data: PlayerCredentials): Response<PlayerResponse> => {
@@ -79,6 +79,26 @@ export const updateWinners = () => {
   return {
     type: 'update_winners',
     data: winners,
+    id: 0,
+  };
+};
+
+export const removeRoom = (roomId: number) => {
+  db.rooms = db.rooms.filter((room) => room.roomId !== roomId);
+};
+
+export const createGame = (playerId: number): Response<Game> => {
+  const gameId = db.gameIndex + 1;
+  db.gameIndex = gameId;
+
+  const game: Game = {
+    idGame: gameId,
+    idPlayer: playerId,
+  };
+
+  return {
+    type: 'create_game',
+    data: game,
     id: 0,
   };
 };

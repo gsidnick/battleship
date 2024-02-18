@@ -2,7 +2,7 @@ import WebSocket from 'ws';
 import PlayerWebSocket from './websocket';
 import { httpServer } from './http_server/index.js';
 import { parseRequest, stringifyResponse } from './utils';
-import { registration, login, createRoom, updateRoom, updateWinners } from './controller';
+import { registration, login, createRoom, updateRoom, updateWinners, createGame, removeRoom } from './controller';
 import { isPlayerExist } from './db';
 import { Response, PlayerResponse, Rooms, Winners } from './types.js';
 
@@ -47,6 +47,17 @@ wss.on('connection', (ws: PlayerWebSocket) => {
         createRoom(ws.player);
         const rooms = updateRoom();
         wss.clients.forEach((client) => client.send(stringifyResponse(rooms)));
+        break;
+      }
+
+      case 'add_user_to_room': {
+        removeRoom(data.indexRoom);
+        const rooms = updateRoom();
+        const game = createGame(ws.player.index);
+        wss.clients.forEach((client) => {
+          client.send(stringifyResponse(rooms));
+          client.send(stringifyResponse(game));
+        });
         break;
       }
 

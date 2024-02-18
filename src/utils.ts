@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import { RawData } from 'ws';
-import { Response, Request, ResponseData, RequestData, Player } from './types';
+import { Response, Request, ResponseData, Player } from './types';
 
-export const parseRequest = (buffer: RawData): Request<RequestData> => {
+export const parseRequest = (buffer: RawData): Request => {
   const response = JSON.parse(buffer.toString());
   const { type, data } = response;
 

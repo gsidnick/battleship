@@ -2,6 +2,7 @@ import { Players, Rooms, Winners } from './types';
 
 interface Database {
   roomIndex: number;
+  gameIndex: number;
   players: Players;
   rooms: Rooms;
   winners: Winners;
@@ -9,6 +10,7 @@ interface Database {
 
 const db: Database = {
   roomIndex: 0,
+  gameIndex: 0,
   players: [],
   rooms: [],
   winners: [],

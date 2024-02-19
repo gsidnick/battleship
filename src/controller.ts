@@ -173,3 +173,13 @@ export const addShipsToGame = (playerShips: PlayerShips): void => {
     db.games.push({ gameId, gameShips: [gameShips] });
   }
 };
+
+export const getShipsFromGame = (gameId: number): number => {
+  const game = db.games.find((item) => item.gameId === gameId);
+
+  if (game) {
+    return game.gameShips.length;
+  }
+
+  return 0;
+};

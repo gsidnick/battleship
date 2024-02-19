@@ -16,6 +16,7 @@ import {
   getRoomPlayers,
   sendToSpecifyClients,
   addShipsToGame,
+  getShipsFromGame,
 } from './controller';
 import { isPlayerExist } from './db';
 import { Response, PlayerResponse, Rooms, Winners } from './types.js';
@@ -81,6 +82,12 @@ wss.on('connection', (ws: PlayerWebSocket) => {
 
       case 'add_ships': {
         addShipsToGame(data);
+
+        const players = getShipsFromGame(data.gameId);
+
+        if (players === 2) {
+          console.log('Start Game');
+        }
         break;
       }
 

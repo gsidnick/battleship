@@ -7,10 +7,11 @@ import {
   Room,
   RoomPlayer,
   Rooms,
-  Game,
   ResponseData,
   RoomPlayers,
   Winners,
+  GamePlayer,
+  PlayerShips,
 } from './types';
 import { generateId, hashPassword, stringifyResponse, verifyPassword } from './utils';
 import PlayerWebSocket from './websocket';
@@ -100,11 +101,11 @@ export const removeRoom = (roomId: number): void => {
   db.rooms = db.rooms.filter((room) => room.roomId !== roomId);
 };
 
-export const createGame = (playerId: number): Response<Game> => {
+export const createGame = (playerId: number): Response<GamePlayer> => {
   const gameId = db.gameIndex + 1;
   db.gameIndex = gameId;
 
-  const game: Game = {
+  const game: GamePlayer = {
     idGame: gameId,
     idPlayer: playerId,
   };
@@ -153,4 +154,22 @@ export const sendToSpecifyClients = (response: Response<ResponseData>, players: 
     const client = db.clients.find((item) => item.player.index === player.index);
     client?.send(message);
   });
+};
+
+export const addShipsToGame = (playerShips: PlayerShips): void => {
+  const { gameId, indexPlayer, ships } = playerShips;
+  const gameShips = { ships, indexPlayer };
+  let index = -1;
+
+  db.games.forEach((game, i) => {
+    if (game.gameId === gameId) {
+      index = i;
+    }
+  });
+
+  if (index >= 0) {
+    db.games[index].gameShips.push(gameShips);
+  } else {
+    db.games.push({ gameId, gameShips: [gameShips] });
+  }
 };

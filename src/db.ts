@@ -1,4 +1,4 @@
-import { Players, Rooms, Winners, Clients } from './types';
+import { Players, Rooms, Winners, Clients, Games } from './types';
 
 interface Database {
   roomIndex: number;
@@ -7,6 +7,7 @@ interface Database {
   players: Players;
   rooms: Rooms;
   winners: Winners;
+  games: Games;
 }
 
 const db: Database = {
@@ -16,6 +17,7 @@ const db: Database = {
   players: [],
   rooms: [],
   winners: [],
+  games: [],
 };
 
 export const isPlayerExist = (name: string): boolean => {

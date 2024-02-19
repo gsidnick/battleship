@@ -38,9 +38,34 @@ export interface Winner {
   wins: number;
 }
 
-export interface Game {
+export interface GamePlayer {
   idGame: number;
   idPlayer: number;
+}
+
+export interface ShipPosition {
+  x: number;
+  y: number;
+}
+
+export type ShipType = 'small' | 'medium' | 'large' | 'huge';
+
+export interface Ship {
+  position: ShipPosition;
+  direction: boolean;
+  length: number;
+  type: ShipType;
+}
+
+export interface PlayerShips {
+  gameId: number;
+  ships: Ship[];
+  indexPlayer: number;
+}
+
+export interface Game {
+  gameId: number;
+  gameShips: Omit<PlayerShips, 'gameId'>[];
 }
 
 export interface Response<T> {
@@ -64,13 +89,19 @@ export type AddUserToRoomType = {
   data: RoomIndex;
 };
 
+export type AddShipsType = {
+  type: 'add_ships';
+  data: PlayerShips;
+};
+
 export type Players = Player[];
 export type Rooms = Room[];
 export type RoomPlayers = RoomPlayer[];
 export type Winners = Winner[];
+export type Games = Game[];
 export type Clients = PlayerWebSocket[];
-export type ResponseData = PlayerResponse | Rooms | Winners | Game;
-export type RequestData = PlayerCredentialsType | CreateRoomType | AddUserToRoomType;
+export type ResponseData = PlayerResponse | Rooms | Winners | GamePlayer;
+export type RequestData = PlayerCredentialsType | CreateRoomType | AddUserToRoomType | AddShipsType;
 
 export type Request = RequestData & {
   id: number;

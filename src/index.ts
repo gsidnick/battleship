@@ -15,6 +15,7 @@ import {
   addUserToRoom,
   getRoomPlayers,
   sendToSpecifyClients,
+  addShipsToGame,
 } from './controller';
 import { isPlayerExist } from './db';
 import { Response, PlayerResponse, Rooms, Winners } from './types.js';
@@ -75,6 +76,11 @@ wss.on('connection', (ws: PlayerWebSocket) => {
 
         sendToSpecifyClients(game, players);
         sendToAllClients(rooms);
+        break;
+      }
+
+      case 'add_ships': {
+        addShipsToGame(data);
         break;
       }
 

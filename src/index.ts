@@ -17,6 +17,8 @@ import {
   sendToSpecifyClients,
   addShipsToGame,
   getShipsFromGame,
+  startGame,
+  // eslint-disable-next-line import/namespace
 } from './controller';
 import { isPlayerExist } from './db';
 import { Response, PlayerResponse, Rooms, Winners } from './types.js';
@@ -81,12 +83,11 @@ wss.on('connection', (ws: PlayerWebSocket) => {
       }
 
       case 'add_ships': {
-        addShipsToGame(data);
+        addShipsToGame(data, ws.player.index);
+        const playersInGame = getShipsFromGame(data.gameId);
 
-        const players = getShipsFromGame(data.gameId);
-
-        if (players === 2) {
-          console.log('Start Game');
+        if (playersInGame.length === 2) {
+          startGame(playersInGame);
         }
         break;
       }

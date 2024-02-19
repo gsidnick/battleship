@@ -43,34 +43,60 @@ export interface GamePlayer {
   idPlayer: number;
 }
 
-export interface ShipPosition {
+export interface Coordinate {
   x: number;
   y: number;
 }
 
 export type ShipType = 'small' | 'medium' | 'large' | 'huge';
+export type AttackStatus = 'miss' | 'killed' | 'shot';
+export type MapLabel = 'X' | 'O' | 'N';
+export type Map = MapLabel[][];
 
 export interface Ship {
-  position: ShipPosition;
+  position: Coordinate;
   direction: boolean;
   length: number;
   type: ShipType;
 }
 
+export type Ships = Ship[];
+
 export interface PlayerShips {
   gameId: number;
-  ships: Ship[];
+  ships: Ships;
   indexPlayer: number;
 }
 
+export type GamePlayerShips = Omit<PlayerShips, 'gameId'> & {
+  map: Map;
+};
+
 export interface Game {
   gameId: number;
-  gameShips: Omit<PlayerShips, 'gameId'>[];
+  gameShips: GamePlayerShips[];
 }
 
 export interface GameStart {
-  ships: Ship[];
+  ships: Ships;
   currentPlayerIndex: number;
+}
+
+export interface Turn {
+  currentPlayer: number;
+}
+
+export interface AttackResult {
+  position: Coordinate;
+  currentPlayer: number;
+  status: AttackStatus;
+}
+
+export interface AttackData {
+  x: number;
+  y: number;
+  gameId: number;
+  indexPlayer: number;
 }
 
 export interface Response<T> {
@@ -99,14 +125,19 @@ export type AddShipsType = {
   data: PlayerShips;
 };
 
+export type Attack = {
+  type: 'attack';
+  data: AttackData;
+};
+
 export type Players = Player[];
 export type Rooms = Room[];
 export type RoomPlayers = RoomPlayer[];
 export type Winners = Winner[];
 export type Games = Game[];
 export type Clients = PlayerWebSocket[];
-export type ResponseData = PlayerResponse | Rooms | Winners | GamePlayer | GameStart;
-export type RequestData = PlayerCredentialsType | CreateRoomType | AddUserToRoomType | AddShipsType;
+export type ResponseData = PlayerResponse | Rooms | Winners | GamePlayer | GameStart | Turn;
+export type RequestData = PlayerCredentialsType | CreateRoomType | AddUserToRoomType | AddShipsType | Attack;
 
 export type Request = RequestData & {
   id: number;

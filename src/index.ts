@@ -4,7 +4,7 @@ import { httpServer } from './http_server/index.js';
 import { registration, login } from './controllers/playerController';
 import { createRoom, updateRoom, removeRoom, addUserToRoom, getRoomPlayers } from './controllers/roomController';
 import { updateWinners } from './controllers/winnerController';
-import { createGame, addShipsToGame, getShipsFromGame, startGame } from './controllers/gameController';
+import { createGame, addShipsToGame, getShipsFromGame, startGame, getAttackResult } from './controllers/gameController';
 import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners } from './types.js';
 import { parseRequest, stringifyResponse } from './utils';
@@ -76,6 +76,11 @@ wss.on('connection', (ws: PlayerWebSocket) => {
         if (playersInGame.length === 2) {
           startGame(playersInGame);
         }
+        break;
+      }
+
+      case 'attack': {
+        getAttackResult(data);
         break;
       }
 

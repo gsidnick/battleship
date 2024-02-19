@@ -1,27 +1,14 @@
 import WebSocket from 'ws';
 import PlayerWebSocket from './websocket';
 import { httpServer } from './http_server/index.js';
-import { parseRequest, stringifyResponse } from './utils';
-import {
-  registration,
-  login,
-  createRoom,
-  updateRoom,
-  updateWinners,
-  createGame,
-  removeRoom,
-  addClient,
-  sendToAllClients,
-  addUserToRoom,
-  getRoomPlayers,
-  sendToSpecifyClients,
-  addShipsToGame,
-  getShipsFromGame,
-  startGame,
-  // eslint-disable-next-line import/namespace
-} from './controller';
-import { isPlayerExist } from './db';
+import { registration, login } from './controllers/playerController';
+import { createRoom, updateRoom, removeRoom, addUserToRoom, getRoomPlayers } from './controllers/roomController';
+import { updateWinners } from './controllers/winnerController';
+import { createGame, addShipsToGame, getShipsFromGame, startGame } from './controllers/gameController';
+import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners } from './types.js';
+import { parseRequest, stringifyResponse } from './utils';
+import { isPlayerExist } from './db';
 
 const HTTP_PORT = 3000;
 

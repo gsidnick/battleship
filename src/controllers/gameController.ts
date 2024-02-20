@@ -117,15 +117,12 @@ export const getOpponent = (currentPlayerIndex: number, players: PlayerShips[]):
 const checkShot = (shotCoordinate: Coordinate, opponent: PlayerShips): AttackStatus | null => {
   const { x: xShot, y: yShot } = shotCoordinate;
   const { ships, map } = opponent;
-  let status: AttackStatus = 'miss';
-  let isAllShip = false;
 
   if (map[yShot][xShot] !== 'N') {
     return null;
   }
 
-  const foundShip = ships.find((ship) => {
-    let isFound = false;
+  const shipsCoordinate: Coordinate[][] = ships.map((ship) => {
     const { x: xShip, y: yShip } = ship.position;
     const { direction, length } = ship;
     const blocks: Coordinate[] = [];
@@ -142,36 +139,44 @@ const checkShot = (shotCoordinate: Coordinate, opponent: PlayerShips): AttackSta
       blocks.push(coordinate);
     }
 
-    let shipKilledBlock = 0;
+    return blocks;
+  });
 
-    for (let i = 0; i < blocks.length; i += 1) {
-      const { x: xBlock, y: yBlock } = blocks[i];
-      const cellStatus = map[yBlock][xBlock];
+  const foundShip = shipsCoordinate.find((ship) => {
+    let isFound = false;
 
-      if (cellStatus === 'X') {
-        shipKilledBlock += 1;
-      }
-
-      if (xShot === xBlock && yShot === yBlock) {
+    for (let i = 0; i < ship.length; i += 1) {
+      const { x: xShip, y: yShip } = ship[i];
+      if (xShot === xShip && yShot === yShip) {
         isFound = true;
-        shipKilledBlock += 1;
       }
-    }
-
-    if (shipKilledBlock === blocks.length) {
-      isAllShip = true;
     }
 
     return isFound;
   });
 
-  if (isAllShip) {
-    return 'killed';
+  if (foundShip) {
+    let shipKilledBlock = 0;
+
+    foundShip.forEach((ship: Coordinate) => {
+      const { x, y } = ship;
+      const cellStatus = map[y][x];
+
+      if (cellStatus === 'X') {
+        shipKilledBlock += 1;
+      }
+
+      if (xShot === x && yShot === y) {
+        shipKilledBlock += 1;
+      }
+    });
+    console.log('Ship Killed Block =', shipKilledBlock, 'Ship Length =', foundShip.length);
+    if (shipKilledBlock === foundShip.length) {
+      return 'killed';
+    }
   }
 
-  status = foundShip ? 'shot' : 'miss';
-
-  return status;
+  return foundShip ? 'shot' : 'miss';
 };
 
 const writeMap = (gameId: number, playerId: number, coordinate: Coordinate, status: AttackStatus) => {

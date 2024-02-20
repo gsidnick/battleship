@@ -14,6 +14,7 @@ import {
   getAttackResult,
   getAttackFeedback,
   getGame,
+  getRandomShot,
 } from './controllers/gameController';
 import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners, Coordinate } from './types.js';
@@ -120,8 +121,16 @@ wss.on('connection', (ws: PlayerWebSocket) => {
       case 'randomAttack': {
         const playersInGame = getShipsFromGame(data.gameId);
         const opponent = getOpponent(data.indexPlayer, playersInGame);
-        const turn = moveTurn(data.gameId, opponent.indexPlayer);
+        const shot: Coordinate = getRandomShot(opponent.map);
         const playersId = [data.indexPlayer, opponent.indexPlayer];
+        const status = getAttackResult(shot, opponent);
+
+        if (status) {
+          const feedback = getAttackFeedback(status, shot, ws.player.index);
+          sendToSpecifyClients(feedback, playersId);
+        }
+
+        const turn = moveTurn(data.gameId, opponent.indexPlayer);
         sendToSpecifyClients(turn, playersId);
         break;
       }

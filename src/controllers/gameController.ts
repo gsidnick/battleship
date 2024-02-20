@@ -1,10 +1,10 @@
 import db from '../db';
 import { stringifyResponse } from '../utils';
 import {
+  Coordinate,
   Response,
   PlayerShips,
   Game,
-  Coordinate,
   Map,
   AttackStatus,
   MapLabel,
@@ -253,4 +253,23 @@ export const moveTurn = (gameId: number, playerId: number): Response<Turn> => {
     data: { currentPlayer: playerId },
     id: 0,
   };
+};
+
+export const getRandomShot = (map: Map): Coordinate => {
+  let generated = false;
+  let coordinate: Coordinate = { x: 0, y: 0 };
+
+  while (!generated) {
+    coordinate = {
+      x: Math.floor(Math.random() * 10),
+      y: Math.floor(Math.random() * 10),
+    };
+    const { x, y } = coordinate;
+
+    if (map[y][x] === 'N') {
+      generated = true;
+    }
+  }
+
+  return coordinate;
 };

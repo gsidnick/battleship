@@ -186,7 +186,7 @@ const writeMap = (gameId: number, playerId: number, coordinate: Coordinate, stat
   let playerIndex = 0;
 
   db.games[gameIndex].gameShips.forEach((item, i) => {
-    if (item.indexPlayer !== playerId) {
+    if (item.indexPlayer === playerId) {
       playerIndex = i;
     }
   });

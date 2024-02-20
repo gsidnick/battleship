@@ -62,9 +62,12 @@ wss.on('connection', (ws: PlayerWebSocket) => {
       }
 
       case 'add_user_to_room': {
-        addUserToRoom(ws.player, data.indexRoom);
-
         const players = getRoomPlayers(data.indexRoom);
+        const isPlayerInRoom = players.find((player) => player.index === ws.player.index);
+
+        if (!isPlayerInRoom) {
+          addUserToRoom(ws.player, data.indexRoom);
+        }
 
         if (players.length === 2) {
           removeRoom(data.indexRoom);

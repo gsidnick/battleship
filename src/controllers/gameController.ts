@@ -1,6 +1,17 @@
 import db from '../db';
 import { stringifyResponse } from '../utils';
-import { Response, GamePlayer, PlayerShips, AttackData, Game, Coordinate, Ships, Map, GamePlayerShips } from '../types';
+import {
+  Response,
+  GamePlayer,
+  PlayerShips,
+  AttackData,
+  Game,
+  Coordinate,
+  Map,
+  GamePlayerShips,
+  AttackStatus,
+  MapLabel,
+} from '../types';
 
 export const createGame = (playerId: number): Response<GamePlayer> => {
   const gameId = db.gameIndex + 1;
@@ -99,11 +110,14 @@ const getOpponent = (currentPlayerIndex: number, game: Game): GamePlayerShips =>
   return game.gameShips[index];
 };
 
-const checkShot = (shotCoordinate: Coordinate, ships: Ships, map: Map): 'shot' | 'miss' | 'open' => {
+const checkShot = (shotCoordinate: Coordinate, opponent: GamePlayerShips): AttackStatus | null => {
   const { x: xShot, y: yShot } = shotCoordinate;
+  const { ships, map } = opponent;
+  let status: AttackStatus = 'miss';
+  let isAllShip = false;
 
   if (map[yShot][xShot] !== 'N') {
-    return 'open';
+    return null;
   }
 
   const foundShip = ships.find((ship) => {
@@ -124,29 +138,78 @@ const checkShot = (shotCoordinate: Coordinate, ships: Ships, map: Map): 'shot' |
       blocks.push(coordinate);
     }
 
+    let shipKilledBlock = 0;
+
     for (let i = 0; i < blocks.length; i += 1) {
       const { x: xBlock, y: yBlock } = blocks[i];
+      const cellStatus = map[yBlock][xBlock];
+
+      if (cellStatus === 'X') {
+        shipKilledBlock += 1;
+      }
+
       if (xShot === xBlock && yShot === yBlock) {
         isFound = true;
+        shipKilledBlock += 1;
       }
+    }
+
+    if (shipKilledBlock === blocks.length) {
+      isAllShip = true;
     }
 
     return isFound;
   });
 
-  return foundShip ? 'shot' : 'miss';
+  if (isAllShip) {
+    return 'killed';
+  }
+
+  status = foundShip ? 'shot' : 'miss';
+
+  return status;
+};
+
+const writeMap = (gameId: number, playerId: number, coordinate: Coordinate, status: AttackStatus) => {
+  let gameIndex = 0;
+
+  db.games.forEach((item, i) => {
+    if (item.gameId === gameId) {
+      gameIndex = i;
+    }
+  });
+
+  let playerIndex = 0;
+
+  db.games[gameIndex].gameShips.forEach((item, i) => {
+    if (item.indexPlayer !== playerId) {
+      playerIndex = i;
+    }
+  });
+
+  let mapLabel: MapLabel;
+
+  switch (status) {
+    case 'miss':
+      mapLabel = 'O';
+      break;
+    case 'shot':
+    case 'killed':
+      mapLabel = 'X';
+      break;
+    default:
+      mapLabel = 'N';
+  }
+
+  db.games[gameIndex].gameShips[playerIndex].map[coordinate.y][coordinate.x] = mapLabel;
 };
 
 export const getAttackResult = (attackData: AttackData) => {
   const { gameId, indexPlayer, x, y } = attackData;
-
+  const shot: Coordinate = { x, y };
   const game = getGame(gameId);
   const opponent = getOpponent(indexPlayer, game);
-  console.log(checkShot({ x, y }, opponent.ships, opponent.map));
-};
+  const status = checkShot(shot, opponent);
 
-// Последовательность действий:
-// 1. Проверить все корабли по координатам. Совпадают ли X или Y
-// 2. Если совпадений нет, то "мимо"
-// 3. Если совпадения есть по оси X, то вычислить все координаты для найденых кораблей, и найти совпадения по оси Y
-//    - например если есть два корабля по оси Y (3 и 2 секции, горизонтальные), нужно вычислить массив координат тройного, и сверить их с ударом. Аналогично вычислить и для двойного корабля - сравнить все координаты с ударом.
+  if (status) writeMap(gameId, opponent.indexPlayer, shot, status);
+};

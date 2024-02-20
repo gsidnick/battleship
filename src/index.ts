@@ -11,9 +11,11 @@ import {
   startGame,
   getOpponent,
   moveTurn,
+  getAttackResult,
+  getAttackFeedback,
 } from './controllers/gameController';
 import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
-import { Response, PlayerResponse, Rooms, Winners } from './types.js';
+import { Response, PlayerResponse, Rooms, Winners, Coordinate } from './types.js';
 import { parseRequest, stringifyResponse } from './utils';
 import { isPlayerExist } from './db';
 
@@ -93,10 +95,18 @@ wss.on('connection', (ws: PlayerWebSocket) => {
       }
 
       case 'attack': {
+        const shot: Coordinate = { x: data.x, y: data.y };
         const playersInGame = getShipsFromGame(data.gameId);
         const opponent = getOpponent(data.indexPlayer, playersInGame);
-        const turn = moveTurn(opponent.indexPlayer);
         const playersId = [data.indexPlayer, opponent.indexPlayer];
+        const status = getAttackResult(shot, opponent);
+
+        if (status) {
+          const feedback = getAttackFeedback(status, shot, ws.player.index);
+          sendToSpecifyClients(feedback, playersId);
+        }
+
+        const turn = moveTurn(opponent.indexPlayer);
         sendToSpecifyClients(turn, playersId);
         break;
       }

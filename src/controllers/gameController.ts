@@ -3,7 +3,6 @@ import { stringifyResponse } from '../utils';
 import {
   Response,
   PlayerShips,
-  AttackData,
   Game,
   Coordinate,
   Map,
@@ -11,6 +10,7 @@ import {
   MapLabel,
   Turn,
   RoomPlayers,
+  AttackResult,
 } from '../types';
 
 export const createGame = (players: RoomPlayers) => {
@@ -208,16 +208,28 @@ const writeMap = (gameId: number, playerId: number, coordinate: Coordinate, stat
   db.games[gameIndex].gameShips[playerIndex].map[coordinate.y][coordinate.x] = mapLabel;
 };
 
-export const getAttackResult = (attackData: AttackData): AttackStatus | null => {
-  const { gameId, indexPlayer, x, y } = attackData;
-  const shot: Coordinate = { x, y };
-  const playersInGame = getShipsFromGame(gameId);
-  const opponent = getOpponent(indexPlayer, playersInGame);
+export const getAttackResult = (shot: Coordinate, opponent: PlayerShips): AttackStatus | null => {
   const status = checkShot(shot, opponent);
 
-  if (status) writeMap(gameId, opponent.indexPlayer, shot, status);
+  if (status) writeMap(opponent.gameId, opponent.indexPlayer, shot, status);
 
   return status;
+};
+
+export const getAttackFeedback = (
+  status: AttackStatus,
+  position: Coordinate,
+  currentPlayer: number,
+): Response<AttackResult> => {
+  return {
+    type: 'attack',
+    data: {
+      position,
+      currentPlayer,
+      status,
+    },
+    id: 0,
+  };
 };
 
 export const moveTurn = (playerId: number): Response<Turn> => {

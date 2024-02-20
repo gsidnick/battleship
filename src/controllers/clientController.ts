@@ -1,5 +1,5 @@
 import db from '../db';
-import { Response, ResponseData, RoomPlayers } from '../types';
+import { Response, ResponseData } from '../types';
 import { stringifyResponse } from '../utils';
 import PlayerWebSocket from '../websocket';
 
@@ -14,10 +14,10 @@ export const sendToAllClients = (response: Response<ResponseData>): void => {
   });
 };
 
-export const sendToSpecifyClients = (response: Response<ResponseData>, players: RoomPlayers): void => {
+export const sendToSpecifyClients = (response: Response<ResponseData>, playersId: number[]): void => {
   const message: string = stringifyResponse(response);
-  players.forEach((player) => {
-    const client = db.clients.find((item) => item.player.index === player.index);
+  playersId.forEach((id) => {
+    const client = db.clients.find((item) => item.player.index === id);
     client?.send(message);
   });
 };

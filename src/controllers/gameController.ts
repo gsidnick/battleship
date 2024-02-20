@@ -2,34 +2,38 @@ import db from '../db';
 import { stringifyResponse } from '../utils';
 import {
   Response,
-  GamePlayer,
   PlayerShips,
   AttackData,
   Game,
   Coordinate,
   Map,
-  GamePlayerShips,
   AttackStatus,
   MapLabel,
+  Turn,
+  RoomPlayers,
 } from '../types';
 
-export const createGame = (playerId: number): Response<GamePlayer> => {
+export const createGame = (players: RoomPlayers) => {
   const gameId = db.gameIndex + 1;
   db.gameIndex = gameId;
 
-  const game: GamePlayer = {
-    idGame: gameId,
-    idPlayer: playerId,
-  };
+  players.forEach((player) => {
+    const response = {
+      type: 'create_game',
+      data: {
+        idGame: gameId,
+        idPlayer: player.index,
+      },
+      id: 0,
+    };
 
-  return {
-    type: 'create_game',
-    data: game,
-    id: 0,
-  };
+    const message: string = stringifyResponse(response);
+    const client = db.clients.find((item) => item.player.index === player.index);
+    client?.send(message);
+  });
 };
 
-export const addShipsToGame = (playerShips: PlayerShips, playerIndex: number): void => {
+export const addShipsToGame = (playerShips: Omit<PlayerShips, 'map'>, playerIndex: number): void => {
   const map: Map = [
     ['N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N'],
     ['N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N'],
@@ -44,7 +48,7 @@ export const addShipsToGame = (playerShips: PlayerShips, playerIndex: number): v
     ['N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N'],
   ];
   const { gameId, ships } = playerShips;
-  const gameShips = { ships, indexPlayer: playerIndex, map };
+  const gameShips = { gameId, ships, indexPlayer: playerIndex, map };
   let index = -1;
 
   db.games.forEach((game, i) => {
@@ -64,7 +68,7 @@ export const getShipsFromGame = (gameId: number): PlayerShips[] => {
   const game = db.games.find((item) => item.gameId === gameId);
 
   if (game) {
-    return game.gameShips.map((item) => ({ gameId, ships: item.ships, indexPlayer: item.indexPlayer }));
+    return game.gameShips.map((item) => ({ gameId, ships: item.ships, indexPlayer: item.indexPlayer, map: item.map }));
   }
 
   return [];
@@ -86,7 +90,7 @@ export const startGame = (players: PlayerShips[]) => {
   });
 };
 
-const getGame = (gameId: number): Game => {
+export const getGame = (gameId: number): Game => {
   let index = 0;
 
   db.games.forEach((item, i) => {
@@ -98,19 +102,19 @@ const getGame = (gameId: number): Game => {
   return db.games[index];
 };
 
-const getOpponent = (currentPlayerIndex: number, game: Game): GamePlayerShips => {
+export const getOpponent = (currentPlayerIndex: number, players: PlayerShips[]): PlayerShips => {
   let index = 0;
 
-  game.gameShips.forEach((item, i) => {
+  players.forEach((item, i) => {
     if (item.indexPlayer !== currentPlayerIndex) {
       index = i;
     }
   });
 
-  return game.gameShips[index];
+  return players[index];
 };
 
-const checkShot = (shotCoordinate: Coordinate, opponent: GamePlayerShips): AttackStatus | null => {
+const checkShot = (shotCoordinate: Coordinate, opponent: PlayerShips): AttackStatus | null => {
   const { x: xShot, y: yShot } = shotCoordinate;
   const { ships, map } = opponent;
   let status: AttackStatus = 'miss';
@@ -204,12 +208,22 @@ const writeMap = (gameId: number, playerId: number, coordinate: Coordinate, stat
   db.games[gameIndex].gameShips[playerIndex].map[coordinate.y][coordinate.x] = mapLabel;
 };
 
-export const getAttackResult = (attackData: AttackData) => {
+export const getAttackResult = (attackData: AttackData): AttackStatus | null => {
   const { gameId, indexPlayer, x, y } = attackData;
   const shot: Coordinate = { x, y };
-  const game = getGame(gameId);
-  const opponent = getOpponent(indexPlayer, game);
+  const playersInGame = getShipsFromGame(gameId);
+  const opponent = getOpponent(indexPlayer, playersInGame);
   const status = checkShot(shot, opponent);
 
   if (status) writeMap(gameId, opponent.indexPlayer, shot, status);
+
+  return status;
+};
+
+export const moveTurn = (playerId: number): Response<Turn> => {
+  return {
+    type: 'turn',
+    data: { currentPlayer: playerId },
+    id: 0,
+  };
 };

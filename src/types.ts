@@ -66,15 +66,12 @@ export interface PlayerShips {
   gameId: number;
   ships: Ships;
   indexPlayer: number;
-}
-
-export type GamePlayerShips = Omit<PlayerShips, 'gameId'> & {
   map: Map;
-};
+}
 
 export interface Game {
   gameId: number;
-  gameShips: GamePlayerShips[];
+  gameShips: PlayerShips[];
 }
 
 export interface GameStart {
@@ -122,7 +119,7 @@ export type AddUserToRoomType = {
 
 export type AddShipsType = {
   type: 'add_ships';
-  data: PlayerShips;
+  data: Omit<PlayerShips, 'map'>;
 };
 
 export type Attack = {

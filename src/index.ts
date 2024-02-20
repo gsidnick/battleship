@@ -4,7 +4,14 @@ import { httpServer } from './http_server/index.js';
 import { registration, login } from './controllers/playerController';
 import { createRoom, updateRoom, removeRoom, addUserToRoom, getRoomPlayers } from './controllers/roomController';
 import { updateWinners } from './controllers/winnerController';
-import { createGame, addShipsToGame, getShipsFromGame, startGame, getAttackResult } from './controllers/gameController';
+import {
+  createGame,
+  addShipsToGame,
+  getShipsFromGame,
+  startGame,
+  getOpponent,
+  moveTurn,
+} from './controllers/gameController';
 import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners } from './types.js';
 import { parseRequest, stringifyResponse } from './utils';
@@ -59,12 +66,12 @@ wss.on('connection', (ws: PlayerWebSocket) => {
 
         const players = getRoomPlayers(data.indexRoom);
 
-        removeRoom(data.indexRoom);
+        if (players.length === 2) {
+          removeRoom(data.indexRoom);
+          createGame(players);
+        }
 
-        const game = createGame(ws.player.index);
         const rooms = updateRoom();
-
-        sendToSpecifyClients(game, players);
         sendToAllClients(rooms);
         break;
       }
@@ -75,12 +82,19 @@ wss.on('connection', (ws: PlayerWebSocket) => {
 
         if (playersInGame.length === 2) {
           startGame(playersInGame);
+          const playersId = playersInGame.map((player) => player.indexPlayer);
+          const turn = moveTurn(ws.player.index);
+          sendToSpecifyClients(turn, playersId);
         }
         break;
       }
 
       case 'attack': {
-        getAttackResult(data);
+        const playersInGame = getShipsFromGame(data.gameId);
+        const opponent = getOpponent(data.indexPlayer, playersInGame);
+        const turn = moveTurn(opponent.indexPlayer);
+        const playersId = [data.indexPlayer, opponent.indexPlayer];
+        sendToSpecifyClients(turn, playersId);
         break;
       }
 

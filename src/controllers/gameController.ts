@@ -60,7 +60,7 @@ export const addShipsToGame = (playerShips: Omit<PlayerShips, 'map'>, playerInde
   if (index >= 0) {
     db.games[index].gameShips.push(gameShips);
   } else {
-    db.games.push({ gameId, gameShips: [gameShips] });
+    db.games.push({ gameId, currentPlayer: playerIndex, gameShips: [gameShips] });
   }
 };
 
@@ -237,7 +237,17 @@ export const getAttackFeedback = (
   };
 };
 
-export const moveTurn = (playerId: number): Response<Turn> => {
+export const moveTurn = (gameId: number, playerId: number): Response<Turn> => {
+  let gameIndex = 0;
+
+  db.games.forEach((item, i) => {
+    if (item.gameId === gameId) {
+      gameIndex = i;
+    }
+  });
+
+  db.games[gameIndex].currentPlayer = playerId;
+
   return {
     type: 'turn',
     data: { currentPlayer: playerId },

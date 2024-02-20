@@ -13,6 +13,7 @@ import {
   moveTurn,
   getAttackResult,
   getAttackFeedback,
+  getGame,
 } from './controllers/gameController';
 import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners, Coordinate } from './types.js';
@@ -88,33 +89,38 @@ wss.on('connection', (ws: PlayerWebSocket) => {
         if (playersInGame.length === 2) {
           startGame(playersInGame);
           const playersId = playersInGame.map((player) => player.indexPlayer);
-          const turn = moveTurn(ws.player.index);
+          const turn = moveTurn(data.gameId, ws.player.index);
           sendToSpecifyClients(turn, playersId);
         }
         break;
       }
 
       case 'attack': {
-        const shot: Coordinate = { x: data.x, y: data.y };
-        const playersInGame = getShipsFromGame(data.gameId);
-        const opponent = getOpponent(data.indexPlayer, playersInGame);
-        const playersId = [data.indexPlayer, opponent.indexPlayer];
-        const status = getAttackResult(shot, opponent);
+        const game = getGame(data.gameId);
 
-        if (status) {
-          const feedback = getAttackFeedback(status, shot, ws.player.index);
-          sendToSpecifyClients(feedback, playersId);
+        if (game.currentPlayer === data.indexPlayer) {
+          const shot: Coordinate = { x: data.x, y: data.y };
+          const playersInGame = getShipsFromGame(data.gameId);
+          const opponent = getOpponent(data.indexPlayer, playersInGame);
+          const playersId = [data.indexPlayer, opponent.indexPlayer];
+          const status = getAttackResult(shot, opponent);
+
+          if (status) {
+            const feedback = getAttackFeedback(status, shot, ws.player.index);
+            sendToSpecifyClients(feedback, playersId);
+          }
+
+          const turn = moveTurn(game.gameId, opponent.indexPlayer);
+          sendToSpecifyClients(turn, playersId);
         }
 
-        const turn = moveTurn(opponent.indexPlayer);
-        sendToSpecifyClients(turn, playersId);
         break;
       }
 
       case 'randomAttack': {
         const playersInGame = getShipsFromGame(data.gameId);
         const opponent = getOpponent(data.indexPlayer, playersInGame);
-        const turn = moveTurn(opponent.indexPlayer);
+        const turn = moveTurn(data.gameId, opponent.indexPlayer);
         const playersId = [data.indexPlayer, opponent.indexPlayer];
         sendToSpecifyClients(turn, playersId);
         break;

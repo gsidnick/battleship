@@ -72,6 +72,7 @@ export interface PlayerShips {
 export interface Game {
   gameId: number;
   gameShips: PlayerShips[];
+  currentPlayer: number;
 }
 
 export interface GameStart {

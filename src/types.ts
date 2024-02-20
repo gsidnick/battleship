@@ -122,9 +122,16 @@ export type AddShipsType = {
   data: Omit<PlayerShips, 'map'>;
 };
 
+export type RandomAttackData = Pick<AttackData, 'gameId' | 'indexPlayer'>;
+
 export type Attack = {
   type: 'attack';
   data: AttackData;
+};
+
+export type RandomAttack = {
+  type: 'randomAttack';
+  data: RandomAttackData;
 };
 
 export type Players = Player[];
@@ -134,7 +141,13 @@ export type Winners = Winner[];
 export type Games = Game[];
 export type Clients = PlayerWebSocket[];
 export type ResponseData = PlayerResponse | Rooms | Winners | GamePlayer | GameStart | Turn;
-export type RequestData = PlayerCredentialsType | CreateRoomType | AddUserToRoomType | AddShipsType | Attack;
+export type RequestData =
+  | PlayerCredentialsType
+  | CreateRoomType
+  | AddUserToRoomType
+  | AddShipsType
+  | Attack
+  | RandomAttack;
 
 export type Request = RequestData & {
   id: number;

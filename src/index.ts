@@ -101,6 +101,15 @@ wss.on('connection', (ws: PlayerWebSocket) => {
         break;
       }
 
+      case 'randomAttack': {
+        const playersInGame = getShipsFromGame(data.gameId);
+        const opponent = getOpponent(data.indexPlayer, playersInGame);
+        const turn = moveTurn(opponent.indexPlayer);
+        const playersId = [data.indexPlayer, opponent.indexPlayer];
+        sendToSpecifyClients(turn, playersId);
+        break;
+      }
+
       default:
         console.log(`Type: ${type}`);
         console.log(`Data: ${data}`);

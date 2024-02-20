@@ -170,7 +170,7 @@ const checkShot = (shotCoordinate: Coordinate, opponent: PlayerShips): AttackSta
         shipKilledBlock += 1;
       }
     });
-    console.log('Ship Killed Block =', shipKilledBlock, 'Ship Length =', foundShip.length);
+
     if (shipKilledBlock === foundShip.length) {
       return 'killed';
     }

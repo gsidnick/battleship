@@ -21,7 +21,7 @@ import {
 import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners, Coordinate } from './types.js';
 import { parseRequest, stringifyResponse } from './utils';
-import { isPlayerExist } from './db';
+import db, { isPlayerExist } from './db';
 
 const HTTP_PORT = 3000;
 
@@ -50,13 +50,13 @@ wss.on('connection', (ws: PlayerWebSocket) => {
         };
         ws.send(stringifyResponse(auth));
 
-        addClient(ws);
-
-        const rooms: Response<Rooms> = updateRoom();
-        const winners: Response<Winners> = updateWinners();
-
-        sendToAllClients(rooms);
-        sendToAllClients(winners);
+        if (!auth.data.error) {
+          addClient(ws);
+          const rooms: Response<Rooms> = updateRoom();
+          const winners: Response<Winners> = updateWinners();
+          sendToAllClients(rooms);
+          sendToAllClients(winners);
+        }
         break;
       }
 
@@ -75,6 +75,7 @@ wss.on('connection', (ws: PlayerWebSocket) => {
           addUserToRoom(ws.player, data.indexRoom);
         }
 
+        console.log(db.rooms);
         if (players.length === 2) {
           removeRoom(data.indexRoom);
           createGame(players);

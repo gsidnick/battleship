@@ -18,7 +18,7 @@ import {
   finishGame,
   checkWinner,
 } from './controllers/gameController';
-import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
+import { addClient, removeClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners, Coordinate } from './types.js';
 import { parseRequest, stringifyResponse } from './utils';
 import { isPlayerExist } from './db';
@@ -31,6 +31,12 @@ httpServer.listen(HTTP_PORT);
 const wss = new WebSocket.Server({ server: httpServer });
 
 wss.on('connection', (ws: PlayerWebSocket) => {
+  ws.on('close', () => {
+    if (ws.player) {
+      removeClient(ws.player.index);
+    }
+  });
+
   ws.on('message', (message) => {
     const { type, data } = parseRequest(message);
 

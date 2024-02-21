@@ -7,6 +7,20 @@ export const addClient = (client: PlayerWebSocket): void => {
   db.clients.push(client);
 };
 
+export const removeClient = (playerId: number): void => {
+  let clientIndex = -1;
+
+  db.clients.forEach((client, i) => {
+    if (client.player.index === playerId) {
+      clientIndex = i;
+    }
+  });
+
+  if (clientIndex !== -1) {
+    db.clients.splice(clientIndex, 1);
+  }
+};
+
 export const sendToAllClients = (response: Response<ResponseData>): void => {
   const message: string = stringifyResponse(response);
   db.clients.forEach((client) => {

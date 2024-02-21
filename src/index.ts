@@ -115,8 +115,6 @@ wss.on('connection', (ws: PlayerWebSocket) => {
 
           const isWinner = checkWinner(opponent.map);
 
-          console.log(`Player ${ws.player.index} is winner? ${isWinner}`);
-
           if (isWinner) {
             const winnerResponse = finishGame(ws.player.index);
             sendToSpecifyClients(winnerResponse, playersId);

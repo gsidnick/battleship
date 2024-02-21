@@ -283,7 +283,7 @@ export const checkWinner = (map: Map): boolean => {
       if (map[y][x] === 'X') complete += 1;
     }
   }
-  console.log(complete);
+
   if (complete === 20) return true;
 
   return false;

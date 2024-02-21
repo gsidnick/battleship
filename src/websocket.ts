@@ -1,4 +1,5 @@
 import WebSocket from 'ws';
+// eslint-disable-next-line import/no-cycle
 import { RoomPlayer } from './types';
 
 export default class PlayerWebSocket extends WebSocket {

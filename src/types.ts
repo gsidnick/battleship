@@ -97,6 +97,10 @@ export interface AttackData {
   indexPlayer: number;
 }
 
+export interface Finish {
+  winPlayer: number;
+}
+
 export interface Response<T> {
   type: string;
   data: T;
@@ -135,13 +139,18 @@ export type RandomAttack = {
   data: RandomAttackData;
 };
 
+export type FinishGame = {
+  type: 'finish';
+  data: Finish;
+};
+
 export type Players = Player[];
 export type Rooms = Room[];
 export type RoomPlayers = RoomPlayer[];
 export type Winners = Winner[];
 export type Games = Game[];
 export type Clients = PlayerWebSocket[];
-export type ResponseData = PlayerResponse | Rooms | Winners | GamePlayer | GameStart | Turn;
+export type ResponseData = PlayerResponse | Rooms | Winners | GamePlayer | GameStart | Turn | Finish;
 export type RequestData =
   | PlayerCredentialsType
   | CreateRoomType

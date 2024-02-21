@@ -15,6 +15,8 @@ import {
   getAttackFeedback,
   getGame,
   getRandomShot,
+  finishGame,
+  checkWinner,
 } from './controllers/gameController';
 import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners, Coordinate } from './types.js';
@@ -111,6 +113,17 @@ wss.on('connection', (ws: PlayerWebSocket) => {
             sendToSpecifyClients(feedback, playersId);
           }
 
+          const isWinner = checkWinner(opponent.map);
+
+          console.log(`Player ${ws.player.index} is winner? ${isWinner}`);
+
+          if (isWinner) {
+            const winnerResponse = finishGame(ws.player.index);
+            sendToSpecifyClients(winnerResponse, playersId);
+            const winners: Response<Winners> = updateWinners();
+            sendToAllClients(winners);
+          }
+
           const turn = moveTurn(game.gameId, opponent.indexPlayer);
           sendToSpecifyClients(turn, playersId);
         }
@@ -128,6 +141,15 @@ wss.on('connection', (ws: PlayerWebSocket) => {
         if (status) {
           const feedback = getAttackFeedback(status, shot, ws.player.index);
           sendToSpecifyClients(feedback, playersId);
+        }
+
+        const isWinner = checkWinner(opponent.map);
+
+        if (isWinner) {
+          const winnerResponse = finishGame(ws.player.index);
+          sendToSpecifyClients(winnerResponse, playersId);
+          const winners: Response<Winners> = updateWinners();
+          sendToAllClients(winners);
         }
 
         const turn = moveTurn(data.gameId, opponent.indexPlayer);

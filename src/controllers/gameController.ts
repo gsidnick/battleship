@@ -11,6 +11,7 @@ import {
   Turn,
   RoomPlayers,
   AttackResult,
+  Finish,
 } from '../types';
 
 export const createGame = (players: RoomPlayers) => {
@@ -272,4 +273,28 @@ export const getRandomShot = (map: Map): Coordinate => {
   }
 
   return coordinate;
+};
+
+export const checkWinner = (map: Map): boolean => {
+  let complete = 0;
+
+  for (let y = 0; y <= 9; y += 1) {
+    for (let x = 0; x <= 9; x += 1) {
+      if (map[y][x] === 'X') complete += 1;
+    }
+  }
+  console.log(complete);
+  if (complete === 20) return true;
+
+  return false;
+};
+
+export const finishGame = (winPlayer: number): Response<Finish> => {
+  return {
+    type: 'finish',
+    data: {
+      winPlayer,
+    },
+    id: 0,
+  };
 };

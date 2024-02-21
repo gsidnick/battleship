@@ -3,7 +3,7 @@ import PlayerWebSocket from './websocket';
 import { httpServer } from './http_server/index.js';
 import { registration, login } from './controllers/playerController';
 import { createRoom, updateRoom, removeRoom, addUserToRoom, getRoomPlayers } from './controllers/roomController';
-import { updateWinners } from './controllers/winnerController';
+import { setWinner, updateWinners } from './controllers/winnerController';
 import {
   createGame,
   addShipsToGame,
@@ -120,6 +120,7 @@ wss.on('connection', (ws: PlayerWebSocket) => {
           if (isWinner) {
             const winnerResponse = finishGame(ws.player.index);
             sendToSpecifyClients(winnerResponse, playersId);
+            setWinner(ws.player.name);
             const winners: Response<Winners> = updateWinners();
             sendToAllClients(winners);
           }

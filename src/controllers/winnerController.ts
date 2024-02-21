@@ -10,3 +10,19 @@ export const updateWinners = (): Response<Winners> => {
     id: 0,
   };
 };
+
+export const setWinner = (name: string): void => {
+  let winnerIndex = -1;
+
+  db.winners.forEach((item, i) => {
+    if (item.name === name) {
+      winnerIndex = i;
+    }
+  });
+
+  if (winnerIndex === -1) {
+    db.winners.push({ name, wins: 1 });
+  } else {
+    db.winners[winnerIndex].wins += 1;
+  }
+};

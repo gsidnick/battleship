@@ -21,7 +21,7 @@ import {
 import { addClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
 import { Response, PlayerResponse, Rooms, Winners, Coordinate } from './types.js';
 import { parseRequest, stringifyResponse } from './utils';
-import db, { isPlayerExist } from './db';
+import { isPlayerExist } from './db';
 
 const HTTP_PORT = 3000;
 
@@ -75,7 +75,6 @@ wss.on('connection', (ws: PlayerWebSocket) => {
           addUserToRoom(ws.player, data.indexRoom);
         }
 
-        console.log(db.rooms);
         if (players.length === 2) {
           removeRoom(data.indexRoom);
           createGame(players);

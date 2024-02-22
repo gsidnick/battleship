@@ -117,6 +117,11 @@ export type CreateRoomType = {
   data: '';
 };
 
+export type SinglePlayType = {
+  type: 'single_play';
+  data: '';
+};
+
 export type AddUserToRoomType = {
   type: 'add_user_to_room';
   data: RoomIndex;
@@ -157,7 +162,8 @@ export type RequestData =
   | AddUserToRoomType
   | AddShipsType
   | Attack
-  | RandomAttack;
+  | RandomAttack
+  | SinglePlayType;
 
 export type Request = RequestData & {
   id: number;

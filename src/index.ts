@@ -19,6 +19,7 @@ import {
   checkWinner,
 } from './controllers/gameController';
 import { addClient, removeClient, sendToAllClients, sendToSpecifyClients } from './controllers/clientController';
+import { playGameWithBot, startGameWithBot } from './controllers/botController';
 import { Response, PlayerResponse, Rooms, Winners, Coordinate } from './types.js';
 import { parseRequest, stringifyResponse } from './utils';
 import { isPlayerExist } from './db';
@@ -30,10 +31,13 @@ httpServer.listen(HTTP_PORT);
 
 const wss = new WebSocket.Server({ server: httpServer });
 
+let withBot = false;
+
 wss.on('connection', (ws: PlayerWebSocket) => {
   ws.on('close', () => {
     if (ws.player) {
       removeClient(ws.player.index);
+      withBot = false;
     }
   });
 
@@ -95,6 +99,16 @@ wss.on('connection', (ws: PlayerWebSocket) => {
         addShipsToGame(data, ws.player.index);
         const playersInGame = getShipsFromGame(data.gameId);
 
+        if (withBot) {
+          const player = playersInGame.find((item) => item.indexPlayer === ws.player.index);
+          if (player) {
+            startGameWithBot(ws, player);
+            const turn = moveTurn(data.gameId, ws.player.index);
+            sendToSpecifyClients(turn, [player.indexPlayer]);
+          }
+          break;
+        }
+
         if (playersInGame.length === 2) {
           startGame(playersInGame);
           const playersId = playersInGame.map((player) => player.indexPlayer);
@@ -105,6 +119,12 @@ wss.on('connection', (ws: PlayerWebSocket) => {
       }
 
       case 'attack': {
+        if (withBot) {
+          const turn = moveTurn(data.gameId, 0);
+          sendToSpecifyClients(turn, [ws.player.index]);
+          break;
+        }
+
         const game = getGame(data.gameId);
 
         if (game.currentPlayer === data.indexPlayer) {
@@ -159,6 +179,12 @@ wss.on('connection', (ws: PlayerWebSocket) => {
 
         const turn = moveTurn(data.gameId, opponent.indexPlayer);
         sendToSpecifyClients(turn, playersId);
+        break;
+      }
+
+      case 'single_play': {
+        withBot = true;
+        playGameWithBot(ws);
         break;
       }
 

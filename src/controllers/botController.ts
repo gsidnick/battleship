@@ -1,5 +1,5 @@
 import db from '../db';
-import { botShips } from '../data/ships';
+import { shipsTemplate } from '../data/ships';
 import { Coordinate, GameStart, Map, PlayerShips, Response, Ships, Winners } from '../types';
 import { stringifyResponse } from '../utils';
 import PlayerWebSocket from '../websocket';
@@ -21,6 +21,11 @@ const generateGameID = (): number => {
   db.gameIndex = gameId;
   return gameId;
 };
+const generateShips = (): Ships => {
+  const { length } = shipsTemplate;
+  const index = Math.floor(Math.random() * (length - 1));
+  return shipsTemplate[index];
+};
 
 const createGame = (ws: PlayerWebSocket, gameId: number) => {
   const response = {
@@ -37,7 +42,7 @@ const createGame = (ws: PlayerWebSocket, gameId: number) => {
 };
 
 export const addShips = (gameId: number) => {
-  const ships: Ships = botShips;
+  const ships: Ships = generateShips();
   const map: Map = [
     ['N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N'],
     ['N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N'],
